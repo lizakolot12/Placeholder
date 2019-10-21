@@ -3,37 +3,28 @@ package proj.kolot.com.placeholder
 import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
-import android.view.View
-import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.drawerlayout.widget.DrawerLayout
+import androidx.fragment.app.FragmentManager
 import com.facebook.*
 import com.facebook.login.LoginResult
 import com.facebook.login.widget.LoginButton
 import com.google.android.material.navigation.NavigationView
 import org.json.JSONException
-
-
-
-
+import proj.kolot.com.placeholder.ui.list.ListFragment
 
 
 class MainActivity : AppCompatActivity() {
     private var callbackManager: CallbackManager? = null
-    private lateinit var toogle:ActionBarDrawerToggle
+    private lateinit var toggle:ActionBarDrawerToggle
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         callbackManager = CallbackManager.Factory.create()
-        var test = findViewById<TextView>(R.id.textView)
-        test.setOnClickListener(View.OnClickListener {
-          //  val intent = Intent(this, GeneralActivity::class.java)
-          //  startActivity(intent)
-        })
         val loginButton = findViewById(R.id.login_button) as LoginButton
         loginButton.registerCallback(callbackManager, object : FacebookCallback<LoginResult> {
             override fun onSuccess(loginResult: LoginResult) {
@@ -51,10 +42,10 @@ class MainActivity : AppCompatActivity() {
         })
 
         val dl: DrawerLayout =   findViewById(R.id.activity_main) as DrawerLayout
-        toogle = ActionBarDrawerToggle(this, dl, R.string.Open, R.string.Close)
+        toggle = ActionBarDrawerToggle(this, dl, R.string.Open, R.string.Close)
 
-        dl.addDrawerListener(toogle)
-        toogle.syncState()
+        dl.addDrawerListener(toggle)
+        toggle.syncState()
 
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
@@ -78,11 +69,23 @@ class MainActivity : AppCompatActivity() {
 
             }
         })
+
+        supportFragmentManager.addOnBackStackChangedListener(object :
+            FragmentManager.OnBackStackChangedListener {
+            override fun onBackStackChanged() {
+                if (supportFragmentManager.backStackEntryCount > 0) {
+                    supportActionBar?.setDisplayHomeAsUpEnabled(true)
+                } else {
+                    supportActionBar?.setDisplayHomeAsUpEnabled(false)
+                    toggle.syncState()
+                }
+            }
+        })
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
 
-        return if (toogle.onOptionsItemSelected(item)) true else super.onOptionsItemSelected(item)
+        return if (toggle.onOptionsItemSelected(item)) true else super.onOptionsItemSelected(item)
 
     }
 
@@ -91,7 +94,14 @@ class MainActivity : AppCompatActivity() {
         val accessToken = AccessToken.getCurrentAccessToken()
         if (accessToken != null) {
             useLoginInformation(accessToken)
+            openList()
         }
+    }
+
+    private fun openList() {
+        supportFragmentManager.beginTransaction()
+            .add(R.id.container, ListFragment.newInstance())
+            .commitNow()
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
