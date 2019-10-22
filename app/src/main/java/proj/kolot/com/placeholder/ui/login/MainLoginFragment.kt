@@ -28,7 +28,7 @@ class MainLoginFragment : Fragment() {
     }
 
     private lateinit var viewModel: LoginViewModel
-    private var callbackManager:CallbackManager? = null
+    private var callbackManager: CallbackManager? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -41,19 +41,20 @@ class MainLoginFragment : Fragment() {
         super.onActivityResult(requestCode, resultCode, data)
         callbackManager?.onActivityResult(requestCode, resultCode, data)
     }
+
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         val factory = LoginViewModelFactory(
             (activity?.application as PlaceholderApp)
         )
         viewModel = ViewModelProviders.of(this, factory).get(LoginViewModel::class.java)
-        val loginButton = activity?.findViewById(R.id.login_button) as LoginButton
+
         callbackManager = CallbackManager.Factory.create()
-        loginButton.registerCallback(callbackManager, object : FacebookCallback<LoginResult> {
+        login_button.registerCallback(callbackManager, object : FacebookCallback<LoginResult> {
             override fun onSuccess(loginResult: LoginResult) {
                 val accessToken = AccessToken.getCurrentAccessToken()
                 val isLoggedIn = accessToken != null && !accessToken.isExpired
-                useLoginInformation(accessToken)
+                if (isLoggedIn) useLoginInformation(accessToken)
             }
 
             override fun onCancel() {
@@ -67,12 +68,8 @@ class MainLoginFragment : Fragment() {
     }
 
     private fun useLoginInformation(accessToken: AccessToken) {
-        /**
-         * Creating the GraphRequest to fetch user details
-         * 1st Param - AccessToken
-         * 2nd Param - Callback (which will be invoked once the request is successful)
-         */
         progressBar.visibility = View.VISIBLE
+
         val request = GraphRequest.newMeRequest(
             accessToken
         ) { `object`, response ->

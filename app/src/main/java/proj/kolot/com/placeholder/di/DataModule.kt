@@ -3,11 +3,12 @@ package proj.kolot.com.placeholder.di
 import android.content.Context
 import dagger.Module
 import dagger.Provides
-import proj.kolot.com.placeholder.data.source.CredentialStorage
-import proj.kolot.com.placeholder.data.source.DataSource
+import proj.kolot.com.placeholder.data.source.local.CredentialStorage
+import proj.kolot.com.placeholder.data.source.remote.RemoteDataSource
 import proj.kolot.com.placeholder.data.source.Repository
 import proj.kolot.com.placeholder.data.source.db.UserDao
 import proj.kolot.com.placeholder.data.source.db.UsersDatabase
+import proj.kolot.com.placeholder.data.source.local.LocalSource
 import proj.kolot.com.placeholder.data.source.remote.UsersServices
 import javax.inject.Singleton
 
@@ -16,7 +17,7 @@ class DataModule {
 
     @Singleton
     @Provides
-    fun credentialStorage(ctx: Context): CredentialStorage {
+    fun localSource(ctx: Context): LocalSource {
         return CredentialStorage(ctx)
     }
 
@@ -28,19 +29,23 @@ class DataModule {
 
     @Singleton
     @Provides
-    fun dataSource(apiServices: UsersServices): DataSource {
-        return DataSource(apiServices)
+    fun dataSource(apiServices: UsersServices): RemoteDataSource {
+        return RemoteDataSource(apiServices)
     }
 
     @Singleton
     @Provides
-    fun usersDao(context:Context): UserDao {
+    fun usersDao(context: Context): UserDao {
         return UsersDatabase.getDatabase(context).userDao()
     }
 
     @Singleton
     @Provides
-    fun repository(dataSource: DataSource, userDao: UserDao, credentialStorage: CredentialStorage): Repository {
-        return Repository(dataSource, userDao, credentialStorage)
+    fun repository(
+        remoteDataSource: RemoteDataSource,
+        userDao: UserDao,
+        localSource: LocalSource
+    ): Repository {
+        return Repository(remoteDataSource, userDao, localSource)
     }
 }

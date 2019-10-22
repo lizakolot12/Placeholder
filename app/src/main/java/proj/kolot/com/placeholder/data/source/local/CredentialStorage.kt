@@ -1,16 +1,13 @@
-package proj.kolot.com.placeholder.data.source
+package proj.kolot.com.placeholder.data.source.local
 
 import android.content.Context
 import android.content.SharedPreferences
-import android.preference.PreferenceManager
-import android.util.Log
 import androidx.core.content.edit
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import proj.kolot.com.placeholder.data.model.LoggedUser
-import proj.kolot.com.placeholder.data.model.User
 
-class CredentialStorage(ctx: Context) {
+class CredentialStorage(ctx: Context):LocalSource {
     private var sharedPreferences: SharedPreferences = ctx.getSharedPreferences(PREF_NAME, 0)
     private val _currentUser: MutableLiveData<LoggedUser> = MutableLiveData()
 
@@ -18,7 +15,7 @@ class CredentialStorage(ctx: Context) {
         _currentUser.value = getLoggedUser()
     }
 
-    fun getLoggedUser(): LoggedUser {
+    override fun getLoggedUser(): LoggedUser {
         return LoggedUser(
             sharedPreferences.getString(LOGIN_KEY, "") ?: "",
             sharedPreferences.getString(TOKEN_KEY, "") ?: "",
@@ -27,21 +24,21 @@ class CredentialStorage(ctx: Context) {
         )
     }
 
-    fun currentUser(): LiveData<LoggedUser> {
+    override fun currentUser(): LiveData<LoggedUser> {
         return _currentUser
     }
 
-    fun saveLoggedUser(user: LoggedUser) {
-        sharedPreferences.edit {
+    override fun saveLoggedUser(user: LoggedUser) {
+        sharedPreferences.edit (commit = true){
             putString(LOGIN_KEY, user.login)
             putString(TOKEN_KEY, user.token)
             putString(EMAIL_KEY, user.email)
             putString(PHOTO_KEY, user.photoPath)
-            _currentUser.value = user
         }
+        _currentUser.value = user
     }
 
-    fun logout() {
+    override fun logout() {
         saveLoggedUser(LoggedUser("", "", "", ""))
     }
 

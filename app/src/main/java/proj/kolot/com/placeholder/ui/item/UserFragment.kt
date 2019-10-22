@@ -1,7 +1,6 @@
 package proj.kolot.com.placeholder.ui.item
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -18,10 +17,7 @@ import kotlinx.android.synthetic.main.list_fragment.*
 import kotlinx.android.synthetic.main.user_fragment.*
 import proj.kolot.com.placeholder.PlaceholderApp
 import proj.kolot.com.placeholder.data.model.User
-import android.R
-import com.google.android.gms.maps.MapFragment
 import com.google.android.gms.maps.SupportMapFragment
-import com.google.android.gms.common.GooglePlayServicesUtil
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
 
@@ -54,12 +50,9 @@ class UserFragment : Fragment(), OnMapReadyCallback {
         )
         viewModel = ViewModelProviders.of(this, factory).get(UserViewModel::class.java)
 
-
-
         viewModel.progress.observe(
             this,
             Observer { t -> progressBar?.visibility = if (t) View.VISIBLE else View.INVISIBLE })
-
 
         viewModel.loadUser(arguments?.getInt("id") ?: 0)
         viewModel.user.observe(this, Observer { t -> if (t != null) showUser(t) })
@@ -81,7 +74,6 @@ class UserFragment : Fragment(), OnMapReadyCallback {
 
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
-
         showUserPlace()
     }
 
@@ -91,7 +83,6 @@ class UserFragment : Fragment(), OnMapReadyCallback {
             user?.address?.geo?.lat?.toDouble() ?: .0,
             user?.address?.geo?.lng?.toDouble() ?: .0
         )
-        Log.e("TEST", "place " + place.latitude + "  " + place.longitude)
         mMap?.addMarker(MarkerOptions().position(place).title(user?.name))
         mMap?.moveCamera(CameraUpdateFactory.newLatLng(place))
     }
@@ -104,9 +95,7 @@ class UserFragment : Fragment(), OnMapReadyCallback {
         phoneView.text = user.phone
         websiteView.text = user.website
         showUserPlace()
-
     }
-
 
     class UserViewModelFactory(var app: PlaceholderApp) : ViewModelProvider.Factory {
         override fun <T : ViewModel?> create(modelClass: Class<T>): T {

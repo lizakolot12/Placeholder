@@ -1,4 +1,4 @@
-package ua.kolot.test.data
+package proj.kolot.com.placeholder.data
 
 sealed class Result<out T : Any> {
 

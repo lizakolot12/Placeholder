@@ -10,7 +10,7 @@ import proj.kolot.com.placeholder.data.model.User
 import proj.kolot.com.placeholder.data.source.Repository
 import javax.inject.Inject
 
-class UserViewModel @Inject constructor(var repository: Repository) : ViewModel() {
+class UserViewModel @Inject constructor(private val repository: Repository) : ViewModel() {
     private val viewModelScope: CoroutineScope = CoroutineScope(Dispatchers.Main)
     private val _progress: MutableLiveData<Boolean> = MutableLiveData()
     private val _user: MutableLiveData<User> = MutableLiveData()
@@ -24,7 +24,6 @@ class UserViewModel @Inject constructor(var repository: Repository) : ViewModel(
             val user = repository.getById(id)
             _progress.postValue(false)
             _user.postValue(user)
-
         }
     }
 }

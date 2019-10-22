@@ -8,10 +8,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import proj.kolot.com.placeholder.data.model.User
 import proj.kolot.com.placeholder.data.source.Repository
-import ua.kolot.test.data.Result
+import proj.kolot.com.placeholder.data.Result
 import javax.inject.Inject
 
-class ListViewModel  @Inject constructor(var repository: Repository) : ViewModel() {
+class ListViewModel @Inject constructor(private val repository: Repository) : ViewModel() {
     private val viewModelScope: CoroutineScope = CoroutineScope(Dispatchers.Main)
     private val _progress: MutableLiveData<Boolean> = MutableLiveData()
     private val _list: MutableLiveData<List<User>> = MutableLiveData()

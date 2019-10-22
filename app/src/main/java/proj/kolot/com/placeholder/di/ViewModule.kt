@@ -3,8 +3,8 @@ package proj.kolot.com.placeholder.di
 import dagger.Module
 import dagger.Provides
 import proj.kolot.com.placeholder.MainViewModel
-import proj.kolot.com.placeholder.data.source.CredentialStorage
 import proj.kolot.com.placeholder.data.source.Repository
+import proj.kolot.com.placeholder.data.source.local.LocalSource
 import proj.kolot.com.placeholder.ui.item.UserViewModel
 import proj.kolot.com.placeholder.ui.list.ListViewModel
 import proj.kolot.com.placeholder.ui.login.LoginViewModel
@@ -23,12 +23,12 @@ class ViewModule {
     }
 
     @Provides
-    fun loginViewModule(credentialStorage: CredentialStorage): LoginViewModel {
-        return LoginViewModel(credentialStorage)
+    fun loginViewModule(localSource: LocalSource): LoginViewModel {
+        return LoginViewModel(localSource)
     }
 
     @Provides
-    fun mainViewModule(credentialStorage: CredentialStorage): MainViewModel {
-        return MainViewModel(credentialStorage)
+    fun mainViewModule(localSource: LocalSource): MainViewModel {
+        return MainViewModel(localSource)
     }
 }

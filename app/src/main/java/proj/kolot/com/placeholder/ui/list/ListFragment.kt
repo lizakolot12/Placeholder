@@ -43,12 +43,11 @@ class ListFragment : Fragment() {
             UserViewAdapter(this.requireContext(), emptyList())
         adapter.onUserClickListener = object : UserViewAdapter.OnUserClickListener{
             override fun onClick(user: User) {
-
                 activity?.supportFragmentManager?.beginTransaction()
                     ?.replace(R.id.container, UserFragment.newInstance(user.id))
-                    ?.commitNow()
+                    ?.addToBackStack("add")
+                    ?.commit()
             }
-
         }
 
         content.layoutManager =

@@ -5,15 +5,15 @@ import com.google.gson.annotations.SerializedName
 
 data class Address(
     @SerializedName("street")
-    val stree: String,
+    val street: String,
+
     @SerializedName("suite")
-
     val suite: String,
+
     @SerializedName("city")
-
     val city: String,
-    @SerializedName("zipcode")
 
+    @SerializedName("zipcode")
     val zipcode: String,
 
     @Embedded

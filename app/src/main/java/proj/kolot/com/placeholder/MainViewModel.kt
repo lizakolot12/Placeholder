@@ -3,19 +3,19 @@ package proj.kolot.com.placeholder
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import proj.kolot.com.placeholder.data.model.LoggedUser
-import proj.kolot.com.placeholder.data.source.CredentialStorage
+import proj.kolot.com.placeholder.data.source.local.LocalSource
 import javax.inject.Inject
 
-class MainViewModel @Inject constructor(val credentialStorage: CredentialStorage): ViewModel() {
-   fun currentUser(): LiveData<LoggedUser> {
-       return credentialStorage.currentUser()
-   }
-
-    fun loggedUser():LoggedUser {
-        return  credentialStorage.getLoggedUser()
+class MainViewModel @Inject constructor(private val localSource: LocalSource) : ViewModel() {
+    fun currentUser(): LiveData<LoggedUser> {
+        return localSource.currentUser()
     }
 
-    fun logout(){
-        credentialStorage.logout()
+    fun loggedUser(): LoggedUser {
+        return localSource.getLoggedUser()
+    }
+
+    fun logout() {
+        localSource.logout()
     }
 }
