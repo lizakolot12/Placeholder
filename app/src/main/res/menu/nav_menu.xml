@@ -1,9 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <item android:id="@+id/account"
-        android:icon="@android:drawable/btn_star"
-        android:title="My Account"/>
+    <item android:id="@+id/users"
+        android:title="@string/menu_title_users"
+        android:icon="@drawable/ic_view_list_black_24dp"/>
+
+    <item android:id="@+id/logout"
+        android:icon="@android:drawable/presence_offline"
+        android:title="@string/logout"
+        />
 
 
 </menu>

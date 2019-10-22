@@ -21,15 +21,15 @@ import proj.kolot.com.placeholder.data.model.User
 import android.R
 import com.google.android.gms.maps.MapFragment
 import com.google.android.gms.maps.SupportMapFragment
+import com.google.android.gms.common.GooglePlayServicesUtil
+import com.google.android.gms.common.ConnectionResult
+import com.google.android.gms.common.GoogleApiAvailability
 
 
-
-
-
-class UserFragment : Fragment() , OnMapReadyCallback  {
+class UserFragment : Fragment(), OnMapReadyCallback {
 
     companion object {
-        fun newInstance(id:Int):UserFragment {
+        fun newInstance(id: Int): UserFragment {
             val fragment = UserFragment()
             fragment.arguments = bundleOf("id" to id)
             return fragment
@@ -37,8 +37,8 @@ class UserFragment : Fragment() , OnMapReadyCallback  {
     }
 
     private lateinit var viewModel: UserViewModel
-    private  var mMap: GoogleMap? = null
-    private var user:User? = null
+    private var mMap: GoogleMap? = null
+    private var user: User? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -61,23 +61,36 @@ class UserFragment : Fragment() , OnMapReadyCallback  {
             Observer { t -> progressBar?.visibility = if (t) View.VISIBLE else View.INVISIBLE })
 
 
-        viewModel.loadUser(arguments?.getInt("id")?:0)
-        viewModel.user.observe(this, Observer {  t ->  if (t != null) showUser(t)})
+        viewModel.loadUser(arguments?.getInt("id") ?: 0)
+        viewModel.user.observe(this, Observer { t -> if (t != null) showUser(t) })
 
         val mapFragment = childFragmentManager
             .findFragmentById(proj.kolot.com.placeholder.R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
+
+        checkGooglePlayServicesAvailability()
+    }
+
+    private fun checkGooglePlayServicesAvailability() {
+        val status = GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(context)
+        if (status != ConnectionResult.SUCCESS) {
+            val dialog = GoogleApiAvailability.getInstance().getErrorDialog(activity, status, 2404)
+            dialog.show()
+        }
     }
 
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
 
-       showUserPlace()
+        showUserPlace()
     }
 
-    private fun showUserPlace(){
-        if (user == null  || mMap == null) return
-        val place = LatLng(user?.address?.geo?.lat?.toDouble()?:.0, user?.address?.geo?.lng?.toDouble()?:.0)
+    private fun showUserPlace() {
+        if (user == null || mMap == null) return
+        val place = LatLng(
+            user?.address?.geo?.lat?.toDouble() ?: .0,
+            user?.address?.geo?.lng?.toDouble() ?: .0
+        )
         Log.e("TEST", "place " + place.latitude + "  " + place.longitude)
         mMap?.addMarker(MarkerOptions().position(place).title(user?.name))
         mMap?.moveCamera(CameraUpdateFactory.newLatLng(place))

@@ -20,4 +20,9 @@
     <string name="Close">close</string>
     <string name="title_activity_maps">Map</string>
 
+    <string name="label_login">You need to login to use the application</string>
+    <string name="menu_title_users">Users</string>
+    <string name="logout">Logout</string>
+    <string name="playservices_warning">For the application to work correctly, play services are required</string>
+
 </resources>

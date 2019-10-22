@@ -4,7 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:padding="16dp">
 
     <TextView
         android:layout_width="wrap_content"
@@ -13,7 +14,7 @@
         tools:text="name"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        android:layout_margin="15dp"
+        android:padding="15dp"
         />
     <TextView
         android:layout_width="wrap_content"
@@ -22,31 +23,33 @@
         app:layout_constraintStart_toEndOf="@id/nameView"
         app:layout_constraintTop_toTopOf="parent"
         tools:text="user name"
-        android:layout_margin="15dp"/>
+        android:padding="15dp"/>
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/emailView"
         app:layout_constraintStart_toEndOf="@id/userNameView"
         app:layout_constraintTop_toTopOf="parent"
-        android:layout_margin="15dp"
+        android:padding="15dp"
         tools:text="email"/>
+
     <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
         android:id="@+id/phoneView"
-        tools:text="phone"
-        android:layout_margin="15dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/nameView"/>
-    <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:padding="15dp"
+        app:layout_constraintStart_toStartOf="@+id/nameView"
+        app:layout_constraintTop_toBottomOf="@id/nameView"
+        tools:text="phone" />
+
+    <TextView
         android:id="@+id/websiteView"
-        tools:text="website"
-        android:layout_margin="15dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/phoneView"/>
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="15dp"
+        app:layout_constraintStart_toStartOf="@+id/nameView"
+        app:layout_constraintTop_toBottomOf="@id/phoneView"
+        tools:text="website" />
 
 
 

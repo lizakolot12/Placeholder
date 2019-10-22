@@ -2,46 +2,61 @@ package proj.kolot.com.placeholder
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.MenuItem
 import android.widget.Toast
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.FragmentManager
-import com.facebook.*
-import com.facebook.login.LoginResult
-import com.facebook.login.widget.LoginButton
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelProviders
+import com.facebook.login.LoginManager
 import com.google.android.material.navigation.NavigationView
-import org.json.JSONException
+import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.nav_header.*
+import proj.kolot.com.placeholder.data.model.LoggedUser
 import proj.kolot.com.placeholder.ui.list.ListFragment
+import proj.kolot.com.placeholder.ui.login.MainLoginFragment
+import android.widget.TextView
+import androidx.core.app.ComponentActivity.ExtraData
+import androidx.core.content.ContextCompat.getSystemService
+import android.icu.lang.UCharacter.GraphemeClusterBreak.T
+import android.widget.ImageView
+import com.bumptech.glide.Glide
 
 
 class MainActivity : AppCompatActivity() {
-    private var callbackManager: CallbackManager? = null
-    private lateinit var toggle:ActionBarDrawerToggle
+    private lateinit var toggle: ActionBarDrawerToggle
+    private lateinit var viewModel: MainViewModel
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        callbackManager = CallbackManager.Factory.create()
-        val loginButton = findViewById(R.id.login_button) as LoginButton
-        loginButton.registerCallback(callbackManager, object : FacebookCallback<LoginResult> {
-            override fun onSuccess(loginResult: LoginResult) {
-                val accessToken = AccessToken.getCurrentAccessToken()
-                val isLoggedIn = accessToken != null && !accessToken.isExpired
-            }
+        val factory = MainViewModelFactory(
+            (application as PlaceholderApp)
+        )
+        viewModel = ViewModelProviders.of(this, factory).get(MainViewModel::class.java)
+        if (viewModel.loggedUser().token.isEmpty()) {
+            showUnlogedState(savedInstanceState)
+        } else {
+            showLoggedState(savedInstanceState)
+        }
 
-            override fun onCancel() {
-                // App code
-            }
 
-            override fun onError(exception: FacebookException) {
-                // App code
+        viewModel.currentUser().observe(this, Observer { t ->
+            //   if (t == null ) return@Observer;
+            Log.e("TEST", "current token " + t.token)
+            if (t == null || t.token.isEmpty()) {
+                showUnlogedState(savedInstanceState)
+            } else {
+                showLoggedState(savedInstanceState)
             }
         })
-
-        val dl: DrawerLayout =   findViewById(R.id.activity_main) as DrawerLayout
+        val dl: DrawerLayout = findViewById(R.id.activity_main) as DrawerLayout
         toggle = ActionBarDrawerToggle(this, dl, R.string.Open, R.string.Close)
 
         dl.addDrawerListener(toggle)
@@ -52,19 +67,17 @@ class MainActivity : AppCompatActivity() {
         val nv = findViewById(R.id.navigationView) as NavigationView
         nv.setNavigationItemSelectedListener(object :
             NavigationView.OnNavigationItemSelectedListener {
-             override fun onNavigationItemSelected(item: MenuItem): Boolean {
+            override fun onNavigationItemSelected(item: MenuItem): Boolean {
                 val id = item.getItemId()
                 when (id) {
-                    R.id.account -> Toast.makeText(
-                        this@MainActivity,
-                        "My Account",
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    R.id.users -> showLoggedState(savedInstanceState)
+
+                    R.id.logout -> logout()
 
                     else -> return true
                 }
 
-
+                dl.closeDrawers()
                 return true
 
             }
@@ -83,6 +96,38 @@ class MainActivity : AppCompatActivity() {
         })
     }
 
+    private fun logout() {
+        LoginManager.getInstance().logOut()
+        viewModel.logout()
+    }
+
+    private fun showUnlogedState(savedInstanceState: Bundle?) {
+        if (savedInstanceState == null) {
+            supportFragmentManager.beginTransaction()
+                .replace(R.id.container, MainLoginFragment.newInstance())
+                .commitNow()
+        }
+    }
+
+    private fun showLoggedState(savedInstanceState: Bundle?) {
+        if (savedInstanceState == null) {
+            supportFragmentManager.beginTransaction()
+                .replace(R.id.container, ListFragment.newInstance())
+                .commitNow()
+        }
+
+        showUserInfo(viewModel.loggedUser())
+    }
+
+    private fun showUserInfo(loggedUser: LoggedUser) {
+        val navigationView = findViewById(R.id.navigationView) as NavigationView
+        val hView = navigationView.getHeaderView(0)
+        val nav_user = hView.findViewById(R.id.info) as TextView
+        nav_user.setText(loggedUser.login + " \n " + loggedUser.email)
+        val imageView = hView.findViewById<ImageView>(R.id.photo)
+        Glide.with(this).load(loggedUser.photoPath).placeholder(android.R.drawable.ic_menu_gallery).into(imageView)
+    }
+
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
 
         return if (toggle.onOptionsItemSelected(item)) true else super.onOptionsItemSelected(item)
@@ -91,47 +136,29 @@ class MainActivity : AppCompatActivity() {
 
     public override fun onStart() {
         super.onStart()
-        val accessToken = AccessToken.getCurrentAccessToken()
-        if (accessToken != null) {
-            useLoginInformation(accessToken)
-            openList()
-        }
-    }
-
-    private fun openList() {
-        supportFragmentManager.beginTransaction()
-            .add(R.id.container, ListFragment.newInstance())
-            .commitNow()
+        /* val accessToken = AccessToken.getCurrentAccessToken()
+         if (accessToken != null) {
+             useLoginInformation(accessToken)
+             openList()
+         }*/
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        callbackManager?.onActivityResult(requestCode, resultCode, data)
+        /* val currentFragment = supportFragmentManager.findFragmentById(R.id.container)
+         if ( currentFragment is MainLoginFragment) {}
+         callbackManager?.onActivityResult(requestCode, resultCode, data)*/
         super.onActivityResult(requestCode, resultCode, data)
+        val currentFragment = supportFragmentManager.findFragmentById(R.id.container)
+        currentFragment?.onActivityResult(requestCode, resultCode, data)
     }
 
-    private fun useLoginInformation(accessToken: AccessToken) {
-        /**
-         * Creating the GraphRequest to fetch user details
-         * 1st Param - AccessToken
-         * 2nd Param - Callback (which will be invoked once the request is successful)
-         */
-        val request = GraphRequest.newMeRequest(
-            accessToken
-        ) { `object`, response ->
-            //OnCompleted is invoked once the GraphRequest is successful
-            try {
-                val name = `object`.getString("name")
-                val email = `object`.getString("email")
-                val image = `object`.getJSONObject("picture").getJSONObject("data").getString("url")
-            } catch (e: JSONException) {
-                e.printStackTrace()
-            }
+
+    class MainViewModelFactory(var app: PlaceholderApp) : ViewModelProvider.Factory {
+        override fun <T : ViewModel?> create(modelClass: Class<T>): T {
+            val mainViewModel: MainViewModel =
+                app.applicationComponent.mainViewModel()
+            return mainViewModel as T
         }
-        // We set parameters to the GraphRequest using a Bundle.
-        val parameters = Bundle()
-        parameters.putString("fields", "id,name,email,picture.width(200)")
-        request.parameters = parameters
-        // Initiate the GraphRequest
-        request.executeAsync()
     }
+
 }

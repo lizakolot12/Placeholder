@@ -8,7 +8,7 @@ import ua.kolot.test.data.Result
 import javax.inject.Inject
 
 
-open class Repository @Inject constructor(val dataSource: DataSource, val userDao: UserDao) {
+open class Repository @Inject constructor(val dataSource: DataSource, val userDao: UserDao, val credentialStorage: CredentialStorage) {
 
     @WorkerThread
     suspend fun load(): Result<List<User>> {

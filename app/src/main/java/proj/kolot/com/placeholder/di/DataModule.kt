@@ -40,7 +40,7 @@ class DataModule {
 
     @Singleton
     @Provides
-    fun repository(dataSource: DataSource, userDao: UserDao): Repository {
-        return Repository(dataSource, userDao)
+    fun repository(dataSource: DataSource, userDao: UserDao, credentialStorage: CredentialStorage): Repository {
+        return Repository(dataSource, userDao, credentialStorage)
     }
 }
