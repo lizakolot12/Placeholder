@@ -1,6 +1,7 @@
 package proj.kolot.com.placeholder.ui.item
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,16 +11,20 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
-import com.google.android.gms.maps.CameraUpdateFactory
-import com.google.android.gms.maps.GoogleMap
-import com.google.android.gms.maps.OnMapReadyCallback
+import com.google.android.gms.maps.*
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import kotlinx.android.synthetic.main.list_fragment.*
 import kotlinx.android.synthetic.main.user_fragment.*
 import proj.kolot.com.placeholder.PlaceholderApp
-import proj.kolot.com.placeholder.R
 import proj.kolot.com.placeholder.data.model.User
+import android.R
+import com.google.android.gms.maps.MapFragment
+import com.google.android.gms.maps.SupportMapFragment
+
+
+
+
 
 class UserFragment : Fragment() , OnMapReadyCallback  {
 
@@ -39,7 +44,7 @@ class UserFragment : Fragment() , OnMapReadyCallback  {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        return inflater.inflate(R.layout.user_fragment, container, false)
+        return inflater.inflate(proj.kolot.com.placeholder.R.layout.user_fragment, container, false)
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
@@ -58,6 +63,10 @@ class UserFragment : Fragment() , OnMapReadyCallback  {
 
         viewModel.loadUser(arguments?.getInt("id")?:0)
         viewModel.user.observe(this, Observer {  t ->  if (t != null) showUser(t)})
+
+        val mapFragment = childFragmentManager
+            .findFragmentById(proj.kolot.com.placeholder.R.id.map) as SupportMapFragment
+        mapFragment.getMapAsync(this)
     }
 
     override fun onMapReady(googleMap: GoogleMap) {
@@ -69,6 +78,7 @@ class UserFragment : Fragment() , OnMapReadyCallback  {
     private fun showUserPlace(){
         if (user == null  || mMap == null) return
         val place = LatLng(user?.address?.geo?.lat?.toDouble()?:.0, user?.address?.geo?.lng?.toDouble()?:.0)
+        Log.e("TEST", "place " + place.latitude + "  " + place.longitude)
         mMap?.addMarker(MarkerOptions().position(place).title(user?.name))
         mMap?.moveCamera(CameraUpdateFactory.newLatLng(place))
     }
